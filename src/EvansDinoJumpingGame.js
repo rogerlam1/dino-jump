@@ -225,14 +225,13 @@ const EvansDinoJumpingGame = () => {
       backgroundColor: '#f3f4f6'
     }}>
       <div style={{ marginBottom: '1rem' }}>
-        <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold' }}>Evan's Dino Jumping Game</h1>
+        <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold' }}>Dino Jump</h1>
         <p style={{ fontSize: '1.25rem' }}>Score: {score} | High Score: {highScore} | Level: {level}</p>
         <p style={{ fontSize: '1.125rem' }}>Coins: {coins} | Jumps: {jumps} | Lives: {lives}</p>
         <p style={{ fontSize: '1.125rem' }}>
           Double Jump: {canDoubleJump ? 'Ready' : `Cooldown: ${Math.ceil(doubleJumpCooldown / 1000)}s`} | 
           Second Double Jump Cost: {SECOND_DOUBLE_JUMP_COST} coins
         </p>
-        <p style={{ fontSize: '1.125rem' }}>Distance to Man: {manPosition}</p>
       </div>
       <div
         style={{
