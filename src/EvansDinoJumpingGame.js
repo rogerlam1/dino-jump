@@ -139,7 +139,7 @@ const EvansDinoJumpingGame = () => {
       setSnakes(prevSnakes => {
         const newSnakes = prevSnakes.map(snake => ({
           ...snake,
-          x: snake.x - (3 + level * 0.5 + Math.random()), // Snakes move at varying speeds
+          x: snake.x - (2.5 + level * 0.5 + Math.random()), // Snakes move at varying speeds
         })).filter(snake => snake.x + SNAKE_WIDTH > 0);
 
         const dinoHitbox = {
