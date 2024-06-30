@@ -1,50 +1,106 @@
-// gameLogic.js
 import {
     GAME_HEIGHT,
-    DINO_HEIGHT,
+    GAME_WIDTH,
     DINO_WIDTH,
+    DINO_HEIGHT,
     SNAKE_WIDTH,
     SNAKE_HEIGHT,
     SNAKE_HITBOX_REDUCTION,
+    GRAVITY,
     JUMP_INITIAL_VELOCITY,
     DOUBLE_JUMP_COOLDOWN,
-    SECOND_DOUBLE_JUMP_COST
+    MIN_SNAKE_DISTANCE,
+    SECOND_DOUBLE_JUMP_COST,
+    INITIAL_MAN_POSITION,
+    INITIAL_LIVES,
   } from './gameSettings';
   
-  export const performJump = (dinoY, isInAir, canDoubleJump, coins, setDinoVelocityY, setIsInAir, setCoins, setJumps, setCanDoubleJump, setDoubleJumpCooldown, setManPosition) => {
-    if (dinoY === GAME_HEIGHT - DINO_HEIGHT) {
+  export const initializeGameState = () => ({
+    dinoY: GAME_HEIGHT - DINO_HEIGHT,
+    dinoVelocityY: 0,
+    canDoubleJump: true,
+    doubleJumpCooldown: 0,
+    isInAir: false,
+    snakes: [],
+    score: 0,
+    highScore: 0,
+    level: 1,
+    gameOver: false,
+    gameStarted: false,
+    coins: 0,
+    lives: INITIAL_LIVES,
+    maxLives: INITIAL_LIVES,
+    manPosition: INITIAL_MAN_POSITION,
+    targetManPosition: INITIAL_MAN_POSITION,
+  });
+  
+  export const jump = (state) => {
+    let newState = { ...state };
+  
+    if (state.dinoY === GAME_HEIGHT - DINO_HEIGHT) {
       // Regular jump
-      setDinoVelocityY(-JUMP_INITIAL_VELOCITY);
-      setIsInAir(true);
-      setCoins(prevCoins => prevCoins + 1);
-      setJumps(prevJumps => prevJumps + 1);
-      setManPosition(prevPosition => Math.max(0, prevPosition - 20));
-    } else if (isInAir) {
-      if (canDoubleJump) {
+      newState.dinoVelocityY = -JUMP_INITIAL_VELOCITY;
+      newState.isInAir = true;
+      newState.coins += 1;
+      newState.targetManPosition = Math.max(0, state.targetManPosition - 20);
+    } else if (state.isInAir) {
+      if (state.canDoubleJump) {
         // First double jump
-        setDinoVelocityY(-JUMP_INITIAL_VELOCITY);
-        setCanDoubleJump(false);
-        setDoubleJumpCooldown(DOUBLE_JUMP_COOLDOWN);
-        setCoins(prevCoins => prevCoins + 1);
-        setManPosition(prevPosition => Math.max(0, prevPosition - 15));
-      } else if (coins >= SECOND_DOUBLE_JUMP_COST) {
+        newState.dinoVelocityY = -JUMP_INITIAL_VELOCITY;
+        newState.canDoubleJump = false;
+        newState.doubleJumpCooldown = DOUBLE_JUMP_COOLDOWN;
+        newState.coins += 1;
+        newState.targetManPosition = Math.max(0, state.targetManPosition - 15);
+      } else if (state.coins >= SECOND_DOUBLE_JUMP_COST) {
         // Second double jump
-        setDinoVelocityY(-JUMP_INITIAL_VELOCITY);
-        setCoins(prevCoins => prevCoins - SECOND_DOUBLE_JUMP_COST);
-        setManPosition(prevPosition => Math.max(0, prevPosition - 10));
+        newState.dinoVelocityY = -JUMP_INITIAL_VELOCITY;
+        newState.coins -= SECOND_DOUBLE_JUMP_COST;
+        newState.targetManPosition = Math.max(0, state.targetManPosition - 10);
       }
     }
+  
+    return newState;
   };
   
-  export const checkCollisions = (dinoY, snakes, setLives, setSnakes) => {
+  export const updateGameState = (state) => {
+    let newState = { ...state };
+  
+    // Dino jumping and falling logic
+    newState.dinoY += newState.dinoVelocityY;
+    if (newState.dinoY > GAME_HEIGHT - DINO_HEIGHT) {
+      newState.dinoY = GAME_HEIGHT - DINO_HEIGHT;
+      newState.dinoVelocityY = 0;
+      newState.isInAir = false;
+    } else {
+      newState.dinoVelocityY += GRAVITY;
+    }
+  
+    // Double jump cooldown logic
+    if (newState.doubleJumpCooldown > 0) {
+      newState.doubleJumpCooldown -= 20;
+      if (newState.doubleJumpCooldown <= 0) {
+        newState.canDoubleJump = true;
+        newState.doubleJumpCooldown = 0;
+      }
+    }
+  
+    // Snake movement and collision detection
+    newState.snakes = newState.snakes
+      .map(snake => ({
+        ...snake,
+        x: snake.x - (2.5 + newState.level * 0.5 + Math.random()),
+      }))
+      .filter(snake => snake.x >= 0); // Remove snakes as soon as they touch the left edge
+  
+    const dinoHitbox = {
+      x: 50,
+      y: newState.dinoY,
+      width: DINO_WIDTH,
+      height: DINO_HEIGHT
+    };
+  
     let collisions = 0;
-    const survivingSnakes = snakes.filter(snake => {
-      const dinoHitbox = {
-        x: 50,
-        y: dinoY,
-        width: DINO_WIDTH,
-        height: DINO_HEIGHT
-      };
+    newState.snakes = newState.snakes.filter(snake => {
       const snakeHitbox = {
         x: snake.x + SNAKE_WIDTH * (1 - SNAKE_HITBOX_REDUCTION) / 2,
         y: snake.y + SNAKE_HEIGHT * (1 - SNAKE_HITBOX_REDUCTION) / 2,
@@ -65,8 +121,44 @@ import {
     });
   
     if (collisions > 0) {
-      setLives(prevLives => Math.max(0, prevLives - collisions));
+      newState.lives = Math.max(0, newState.lives - collisions);
     }
   
-    setSnakes(survivingSnakes);
+    // Spawn new snakes
+    if (Math.random() < 0.01 + newState.level * 0.002) {
+      const lastSnake = newState.snakes[newState.snakes.length - 1];
+      if (!lastSnake || GAME_WIDTH - lastSnake.x >= MIN_SNAKE_DISTANCE) {
+        newState.snakes.push({ x: GAME_WIDTH, y: GAME_HEIGHT - SNAKE_HEIGHT });
+      }
+    }
+  
+    // Update score and level
+    newState.score += 1;
+    newState.highScore = Math.max(newState.highScore, newState.score);
+    if (newState.score > 0 && newState.score % 500 === 0) {
+      newState.level += 1;
+    }
+  
+    // Smooth man movement
+    if (newState.manPosition !== newState.targetManPosition) {
+      const diff = newState.targetManPosition - newState.manPosition;
+      const step = Math.sign(diff) * Math.min(Math.abs(diff), 2); // Adjust 2 to control speed
+      newState.manPosition += step;
+    }
+  
+    // Check if dino caught the man (now just needs to touch)
+    if (newState.manPosition <= 50 + DINO_WIDTH) {
+      newState.lives += 1;
+      newState.maxLives = Math.max(newState.maxLives, newState.lives);
+      newState.manPosition = INITIAL_MAN_POSITION;
+      newState.targetManPosition = INITIAL_MAN_POSITION;
+    }
+  
+    // Check for game over
+    if (newState.lives <= 0) {
+      newState.gameOver = true;
+      newState.gameStarted = false;
+    }
+  
+    return newState;
   };
