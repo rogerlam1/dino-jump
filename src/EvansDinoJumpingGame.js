@@ -92,8 +92,19 @@ const EvansDinoJumpingGame = () => {
       }
     };
 
+    const handleMouseClick = () => {
+      if (gameStarted) {
+        jump();
+      }
+    };
+
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('mousedown', handleMouseClick);
+    
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('mousedown', handleMouseClick);
+    };
   }, [jump, gameStarted, gameOver, startGame]);
 
   useEffect(() => {
@@ -307,9 +318,20 @@ const EvansDinoJumpingGame = () => {
               Levels completed: {level - 1}
               <br />
               Max lives reached: {maxLives}
-              <br />
-              Press Enter to play again
             </AlertDialogDescription>
+            <button
+              style={{
+                marginTop: '1rem',
+                padding: '0.5rem 1rem',
+                color: 'white',
+                backgroundColor: '#3b82f6',
+                borderRadius: '0.25rem',
+                cursor: 'pointer'
+              }}
+              onClick={startGame}
+            >
+              Play Again
+            </button>
           </AlertDialogHeader>
         </AlertDialogContent>
       </AlertDialog>
