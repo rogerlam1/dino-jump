@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from './AlertDialog';
-import { DinoGif, ManGif, SnakeGif } from './gameGraphics';
-import { GAME_HEIGHT, GAME_WIDTH, DINO_HEIGHT } from './gameSettings';
+import { DinoGif, ManGif, SnakeGif, CoinGif } from './gameGraphics';
+import { GAME_HEIGHT, GAME_WIDTH, DINO_HEIGHT, COIN_SIZE } from './gameSettings';
 import { initializeGameState, jump, updateGameState } from './gameLogic';
 
 const EvansDinoJumpingGame = () => {
@@ -33,7 +33,7 @@ const EvansDinoJumpingGame = () => {
       const containerHeight = gameContainerRef.current.offsetHeight;
       const scaleX = containerWidth / GAME_WIDTH;
       const scaleY = containerHeight / GAME_HEIGHT;
-      const newScale = Math.min(scaleX, scaleY, 1); // Limit scale to 1 for larger screens
+      const newScale = Math.min(scaleX, scaleY, 1);
       setScale(newScale);
     }
   }, []);
@@ -143,7 +143,7 @@ const EvansDinoJumpingGame = () => {
                 >
                   <p style={{ fontWeight: 'bold' }}>Score: {gameState.score} | High Score: {gameState.highScore}</p>
                   <p>Level: {gameState.level}</p>
-                  <p>Coins: {gameState.coins}</p>
+                  <p>Coins: {gameState.coinCount}</p>
                   <p>Lives: {gameState.lives}</p>
                 </div>
                 <div
@@ -175,6 +175,20 @@ const EvansDinoJumpingGame = () => {
                     }}
                   >
                     <SnakeGif />
+                  </div>
+                ))}
+                {gameState.coins.map((coin, index) => (
+                  <div
+                    key={`coin-${index}`}
+                    style={{
+                      position: 'absolute',
+                      left: coin.x,
+                      top: coin.y,
+                      width: COIN_SIZE,
+                      height: COIN_SIZE,
+                    }}
+                  >
+                    <CoinGif />
                   </div>
                 ))}
               </>
@@ -226,7 +240,7 @@ const EvansDinoJumpingGame = () => {
               <br />
               High score: {gameState.highScore}
               <br />
-              Coins collected: {gameState.coins}
+              Coins collected: {gameState.coinCount}
               <br />
               Levels completed: {gameState.level - 1}
               <br />

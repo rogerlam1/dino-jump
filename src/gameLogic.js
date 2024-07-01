@@ -13,6 +13,9 @@ import {
     SECOND_DOUBLE_JUMP_COST,
     INITIAL_MAN_POSITION,
     INITIAL_LIVES,
+    COIN_SIZE,
+    COIN_SPAWN_RATE,
+    MAX_JUMP_HEIGHT,
   } from './gameSettings';
   
   export const initializeGameState = () => ({
@@ -22,12 +25,13 @@ import {
     doubleJumpCooldown: 0,
     isInAir: false,
     snakes: [],
+    coins: [],
     score: 0,
     highScore: 0,
     level: 1,
     gameOver: false,
     gameStarted: false,
-    coins: 0,
+    coinCount: 0,
     lives: INITIAL_LIVES,
     maxLives: INITIAL_LIVES,
     manPosition: INITIAL_MAN_POSITION,
@@ -41,7 +45,6 @@ import {
       // Regular jump
       newState.dinoVelocityY = -JUMP_INITIAL_VELOCITY;
       newState.isInAir = true;
-      newState.coins += 1;
       newState.targetManPosition = Math.max(0, state.targetManPosition - 20);
     } else if (state.isInAir) {
       if (state.canDoubleJump) {
@@ -49,12 +52,11 @@ import {
         newState.dinoVelocityY = -JUMP_INITIAL_VELOCITY;
         newState.canDoubleJump = false;
         newState.doubleJumpCooldown = DOUBLE_JUMP_COOLDOWN;
-        newState.coins += 1;
         newState.targetManPosition = Math.max(0, state.targetManPosition - 15);
-      } else if (state.coins >= SECOND_DOUBLE_JUMP_COST) {
+      } else if (state.coinCount >= SECOND_DOUBLE_JUMP_COST) {
         // Second double jump
         newState.dinoVelocityY = -JUMP_INITIAL_VELOCITY;
-        newState.coins -= SECOND_DOUBLE_JUMP_COST;
+        newState.coinCount -= SECOND_DOUBLE_JUMP_COST;
         newState.targetManPosition = Math.max(0, state.targetManPosition - 10);
       }
     }
@@ -90,7 +92,7 @@ import {
         ...snake,
         x: snake.x - (2.5 + newState.level * 0.5 + Math.random()),
       }))
-      .filter(snake => snake.x >= 0); // Remove snakes as soon as they touch the left edge
+      .filter(snake => snake.x >= 0);
   
     const dinoHitbox = {
       x: 50,
@@ -124,11 +126,47 @@ import {
       newState.lives = Math.max(0, newState.lives - collisions);
     }
   
+    // Coin movement and collection
+    newState.coins = newState.coins
+      .map(coin => ({
+        ...coin,
+        x: coin.x - (2 + newState.level * 0.3),
+      }))
+      .filter(coin => {
+        const coinHitbox = {
+          x: coin.x,
+          y: coin.y,
+          width: COIN_SIZE,
+          height: COIN_SIZE
+        };
+  
+        if (
+          dinoHitbox.x < coinHitbox.x + coinHitbox.width &&
+          dinoHitbox.x + dinoHitbox.width > coinHitbox.x &&
+          dinoHitbox.y < coinHitbox.y + coinHitbox.height &&
+          dinoHitbox.y + dinoHitbox.height > coinHitbox.y
+        ) {
+          newState.coinCount++;
+          newState.score += 10;
+          return false; // Remove the collected coin
+        }
+        return coin.x >= -COIN_SIZE; // Remove coins that have left the screen
+      });
+  
     // Spawn new snakes
     if (Math.random() < 0.01 + newState.level * 0.002) {
       const lastSnake = newState.snakes[newState.snakes.length - 1];
       if (!lastSnake || GAME_WIDTH - lastSnake.x >= MIN_SNAKE_DISTANCE) {
         newState.snakes.push({ x: GAME_WIDTH, y: GAME_HEIGHT - SNAKE_HEIGHT });
+      }
+    }
+  
+    // Spawn new coins
+    if (Math.random() < COIN_SPAWN_RATE) {
+      const lastCoin = newState.coins[newState.coins.length - 1];
+      if (!lastCoin || GAME_WIDTH - lastCoin.x >= GAME_WIDTH / 2) {
+        const coinY = GAME_HEIGHT - DINO_HEIGHT - MAX_JUMP_HEIGHT + Math.random() * (MAX_JUMP_HEIGHT / 2);
+        newState.coins.push({ x: GAME_WIDTH, y: coinY });
       }
     }
   
@@ -146,7 +184,7 @@ import {
       newState.manPosition += step;
     }
   
-    // Check if dino caught the man (now just needs to touch)
+    // Check if dino caught the man
     if (newState.manPosition <= 50 + DINO_WIDTH) {
       newState.lives += 1;
       newState.maxLives = Math.max(newState.maxLives, newState.lives);
