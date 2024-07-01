@@ -43,19 +43,16 @@ export const jump = (state) => {
     let newState = { ...state };
 
     if (state.dinoY === GAME_HEIGHT - DINO_HEIGHT) {
-        // Regular jump
         newState.dinoVelocityY = -JUMP_INITIAL_VELOCITY;
         newState.isInAir = true;
         newState.targetManPosition = Math.max(0, state.targetManPosition - 20);
     } else if (state.isInAir) {
         if (state.canDoubleJump) {
-            // First double jump
             newState.dinoVelocityY = -JUMP_INITIAL_VELOCITY;
             newState.canDoubleJump = false;
             newState.doubleJumpCooldown = DOUBLE_JUMP_COOLDOWN;
             newState.targetManPosition = Math.max(0, state.targetManPosition - 15);
         } else if (state.coinCount >= SECOND_DOUBLE_JUMP_COST) {
-            // Second double jump
             newState.dinoVelocityY = -JUMP_INITIAL_VELOCITY;
             newState.coinCount -= SECOND_DOUBLE_JUMP_COST;
             newState.targetManPosition = Math.max(0, state.targetManPosition - 10);

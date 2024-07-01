@@ -1,20 +1,74 @@
 /* EvansDinoJumpingGame.css */
 .game-container {
     width: 100%;
-    height: 100%;
+    height: 100vh; /* Use full viewport height */
     position: relative;
-    background-color: #F0F4F8; /* example light background */
+    background-color: #FFFFFF; /* Set background to white */
     overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.game-over-dialog {
-    background: rgba(255, 255, 255, 0.9);
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+.game-area {
+    position: relative;
+    width: 720px;  /* Match GAME_WIDTH */
+    height: 400px; /* Match GAME_HEIGHT */
+    border: 2px solid rgb(187, 183, 183); /* Optional: Remove or keep for better visibility */
+    transform-origin: top left; /* Ensure scaling starts from the top-left corner */
+}
+
+.dino, .man, .snake, .coin {
+    position: absolute;
+    bottom: 0;
+}
+
+.top-left, .top-right {
+    position: absolute;
+    z-index: 1000;
+}
+
+.top-left {
+    top: 10px;
+    left: 10px;
+}
+
+.top-right {
+    top: 10px;
+    right: 10px;
+}
+
+.game-info p {
+    margin: 0;
+}
+
+.start-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     text-align: center;
 }
 
-.game-object, .game-object img {
-    background: transparent; /* Ensure background is transparent */
+.start-button, .play-again-button {
+    background-color: #2563EB;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.start-button:hover, .play-again-button:hover {
+    background-color: #3B82F6;
+}
+
+.rotate-device-message {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
 }

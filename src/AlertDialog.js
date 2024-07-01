@@ -1,34 +1,45 @@
+// AlertDialog.js
 import React from 'react';
+import PropTypes from 'prop-types';
+import './AlertDialog.css'; // Add CSS for AlertDialog here
 
 export const AlertDialog = ({ open, children }) => {
   if (!open) return null;
+
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
-    }}>
-      <div style={{
-        backgroundColor: 'white',
-        padding: '20px',
-        borderRadius: '5px'
-      }}>
+    <div className="alert-dialog-overlay">
+      <div className="alert-dialog-content">
         {children}
       </div>
     </div>
   );
 };
 
-export const AlertDialogContent = ({ children }) => <div>{children}</div>;
+AlertDialog.propTypes = {
+  open: PropTypes.bool.isRequired,
+  children: PropTypes.node.isRequired,
+};
 
-export const AlertDialogHeader = ({ children }) => <div style={{ marginBottom: '10px' }}>{children}</div>;
+export const AlertDialogContent = ({ children }) => (
+  <div className="alert-dialog-content-inner">
+    {children}
+  </div>
+);
 
-export const AlertDialogTitle = ({ children }) => <h2 style={{ fontSize: '1.5em', fontWeight: 'bold' }}>{children}</h2>;
+export const AlertDialogHeader = ({ children }) => (
+  <div className="alert-dialog-header">
+    {children}
+  </div>
+);
 
-export const AlertDialogDescription = ({ children }) => <p>{children}</p>;
+export const AlertDialogTitle = ({ children }) => (
+  <h2 className="alert-dialog-title">
+    {children}
+  </h2>
+);
+
+export const AlertDialogDescription = ({ children }) => (
+  <p className="alert-dialog-description">
+    {children}
+  </p>
+);
