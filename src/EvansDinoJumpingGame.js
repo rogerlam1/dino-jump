@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogHeader, AlertDialogTitle } from './AlertDialog';
 import { DinoGif, ManGif, SnakeGif, CoinGif } from './gameGraphics';
-import { GAME_HEIGHT, GAME_WIDTH, DINO_HEIGHT, COIN_SIZE } from './gameSettings';
+import { GAME_HEIGHT, GAME_WIDTH, DINO_HEIGHT, COIN_SIZE } from './gameSettings'; // Reintroduced DINO_HEIGHT
 import { initializeGameState, jump, updateGameState } from './gameLogic';
 import './EvansDinoJumpingGame.css';
 
@@ -11,6 +11,7 @@ const EvansDinoJumpingGame = () => {
     const [isLandscape, setIsLandscape] = useState(window.innerWidth > window.innerHeight);
     const [scale, setScale] = useState(1);
     const gameContainerRef = useRef(null);
+    const requestRef = useRef();
 
     const startGame = useCallback(() => {
         setGameState(prevState => ({
@@ -57,28 +58,38 @@ const EvansDinoJumpingGame = () => {
             }
         };
 
-        const handleMouseClick = () => {
+        const handleTouchStart = (e) => {
+            e.preventDefault();
+            handleJump();
+        };
+
+        const handleMouseDown = (e) => {
+            e.preventDefault();
             handleJump();
         };
 
         window.addEventListener('keydown', handleKeyDown);
-        window.addEventListener('mousedown', handleMouseClick);
+        window.addEventListener('touchstart', handleTouchStart);
+        window.addEventListener('mousedown', handleMouseDown);
         
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
-            window.removeEventListener('mousedown', handleMouseClick);
+            window.removeEventListener('touchstart', handleTouchStart);
+            window.removeEventListener('mousedown', handleMouseDown);
         };
     }, [handleJump, gameState.gameOver, startGame]);
 
+    const gameLoop = useCallback(() => {
+        setGameState(prevState => updateGameState(prevState));
+        requestRef.current = requestAnimationFrame(gameLoop);
+    }, []);
+
     useEffect(() => {
-        if (!gameState.gameStarted || (!isLandscape && window.innerWidth < 768)) return;
-
-        const gameLoop = setInterval(() => {
-            setGameState(prevState => updateGameState(prevState));
-        }, 20);
-
-        return () => clearInterval(gameLoop);
-    }, [gameState.gameStarted, isLandscape]);
+        if (gameState.gameStarted && (isLandscape || window.innerWidth >= 768)) {
+            requestRef.current = requestAnimationFrame(gameLoop);
+        }
+        return () => cancelAnimationFrame(requestRef.current);
+    }, [gameState.gameStarted, isLandscape, gameLoop]);
 
     const shouldShowGame = isLandscape || window.innerWidth >= 768;
 
@@ -95,6 +106,8 @@ const EvansDinoJumpingGame = () => {
                 backgroundColor: '#f3f4f6',
                 overflow: 'hidden'
             }}
+            onMouseDown={handleJump}  // Ensure mouse down is captured
+            onTouchStart={handleJump}  // Ensure touch start is captured
         >
             {shouldShowGame ? (
                 <div
@@ -155,8 +168,7 @@ const EvansDinoJumpingGame = () => {
                                     style={{
                                         position: 'absolute',
                                         left: 50,
-                                        bottom: GAME_HEIGHT - gameState.dinoY - DINO_HEIGHT,
-                                        transition: 'bottom 0.1s ease-out',
+                                        bottom: `${GAME_HEIGHT - DINO_HEIGHT - gameState.dinoY}px`, // Adjusted calculation
                                     }}
                                 >
                                     <DinoGif />
