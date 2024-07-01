@@ -1,0 +1,20 @@
+/* EvansDinoJumpingGame.css */
+.game-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    background-color: #F0F4F8; /* example light background */
+    overflow: hidden;
+}
+
+.game-over-dialog {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.game-object, .game-object img {
+    background: transparent; /* Ensure background is transparent */
+}
