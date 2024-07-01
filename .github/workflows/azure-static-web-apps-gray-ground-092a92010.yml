@@ -19,6 +19,26 @@ jobs:
         with:
           submodules: true
           lfs: false
+      
+      # Caching node_modules
+      - name: Cache node_modules
+        id: cache-npm
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package.json', '**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      
+      # Install dependencies
+      - name: Install Dependencies
+        run: npm install
+      
+      # Build application
+      - name: Build Application
+        run: npm run build
+      
+      # Deploy application
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1

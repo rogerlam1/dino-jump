@@ -130,6 +130,7 @@ const EvansDinoJumpingGame = () => {
                                     }}
                                 >
                                     <p>Double Jump: {gameState.canDoubleJump ? 'Ready' : `${Math.ceil(gameState.doubleJumpCooldown / 1000)}s`}</p>
+                                    <p>Purchase another double jump with 10 coins!</p>
                                 </div>
                                 <div
                                     style={{
@@ -191,6 +192,7 @@ const EvansDinoJumpingGame = () => {
                                             width: COIN_SIZE,
                                             height: COIN_SIZE,
                                         }}
+                                        className="game-object"
                                     >
                                         <CoinGif />
                                     </div>
