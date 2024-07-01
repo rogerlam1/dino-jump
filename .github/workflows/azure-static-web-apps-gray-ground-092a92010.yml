@@ -20,6 +20,12 @@ jobs:
           submodules: true
           lfs: false
       
+      # Set up Node.js 20 environment
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      
       # Caching node_modules
       - name: Cache node_modules
         id: cache-npm
