@@ -9,24 +9,37 @@
     justify-content: center;
     align-items: center;
     z-index: 10000;
-  }
-  
-  .alert-dialog-content {
+}
+
+.alert-dialog-content {
     background-color: white;
     border-radius: 8px;
     padding: 20px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .alert-dialog-header {
+}
+
+.alert-dialog-header {
     margin-bottom: 10px;
-  }
-  
-  .alert-dialog-title {
+}
+
+.alert-dialog-title {
     margin: 0;
     font-size: 1.5em;
-  }
-  
-  .alert-dialog-description {
+}
+
+.alert-dialog-description {
     margin: 0;
-  }
+}
+
+.resume-game-button {
+    background-color: #2563EB;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.resume-game-button:hover {
+    background-color: #3B82F6;
+}

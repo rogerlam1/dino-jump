@@ -6,7 +6,7 @@ import useGameLogic from './useGameLogic';
 import './EvansDinoJumpingGame.css';
 
 const EvansDinoJumpingGame = () => {
-    const { gameState, startGame, handleJump, gameContainerRef, shouldShowGame, scale } = useGameLogic();
+    const { gameState, startGame, handleJump, gameContainerRef, shouldShowGame, scale, resumeGame } = useGameLogic();
 
     return (
         <div 
@@ -27,6 +27,17 @@ const EvansDinoJumpingGame = () => {
                     <h2>Please rotate your device to landscape mode</h2>
                     <p>The game is paused and will resume when you rotate your device.</p>
                 </div>
+            )}
+            {gameState.showBossFight && (
+                <AlertDialog open={true}>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Get ready for Boss fight!</AlertDialogTitle>
+                            <br/>
+                            <button className="resume-game-button" onClick={resumeGame}>Continue</button>
+                        </AlertDialogHeader>
+                    </AlertDialogContent>
+                </AlertDialog>
             )}
             <AlertDialog open={gameState.gameOver}>
                 <AlertDialogContent>

@@ -19,10 +19,24 @@ const useGameLogic = () => {
     }, []);
 
     const handleJump = useCallback(() => {
-        if (gameState.gameStarted && (isLandscape || window.innerWidth >= 768)) {
+        if (gameState.isPaused || gameState.showBossFight) {
+            setGameState(prevState => ({
+                ...prevState,
+                isPaused: false,
+                showBossFight: false,
+            }));
+        } else if (gameState.gameStarted && (isLandscape || window.innerWidth >= 768)) {
             setGameState(prevState => jump(prevState));
         }
-    }, [gameState.gameStarted, isLandscape]);
+    }, [gameState.gameStarted, gameState.isPaused, gameState.showBossFight, isLandscape]);
+
+    const resumeGame = useCallback(() => {
+        setGameState(prevState => ({
+            ...prevState,
+            isPaused: false,
+            showBossFight: false,
+        }));
+    }, []);
 
     const handleResize = useCallback(() => {
         const isLandscapeMode = window.innerWidth > window.innerHeight;
@@ -77,9 +91,11 @@ const useGameLogic = () => {
     }, [handleJump, gameState.gameOver, startGame]);
 
     const gameLoop = useCallback(() => {
-        setGameState(prevState => updateGameState(prevState));
+        if (!gameState.isPaused) {
+            setGameState(prevState => updateGameState(prevState));
+        }
         requestRef.current = requestAnimationFrame(gameLoop);
-    }, []);
+    }, [gameState.isPaused]);
 
     useEffect(() => {
         if (gameState.gameStarted && (isLandscape || window.innerWidth >= 768)) {
@@ -96,7 +112,8 @@ const useGameLogic = () => {
         handleJump,
         gameContainerRef,
         shouldShowGame,
-        scale
+        scale,
+        resumeGame,
     };
 };
 

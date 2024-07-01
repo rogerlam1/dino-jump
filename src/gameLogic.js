@@ -37,7 +37,14 @@ export const initializeGameState = () => ({
     maxLives: INITIAL_LIVES,
     manPosition: INITIAL_MAN_POSITION,
     targetManPosition: INITIAL_MAN_POSITION,
+    showBossFight: false,
+    isPaused: false,
 });
+
+export const initiateBossFight = (state) => {
+    let newState = { ...state, isPaused: true, showBossFight: true };
+    return newState;
+};
 
 export const jump = (state) => {
     let newState = { ...state };
@@ -178,7 +185,7 @@ export const updateGameState = (state) => {
     // Smooth man movement
     if (newState.manPosition !== newState.targetManPosition) {
         const diff = newState.targetManPosition - newState.manPosition;
-        const step = Math.sign(diff) * Math.min(Math.abs(diff), 2); // Adjust 2 to control speed
+        const step = Math.sign(diff) * Math.min(Math.abs(diff), 2);
         newState.manPosition += step;
     }
 
@@ -188,6 +195,9 @@ export const updateGameState = (state) => {
         newState.maxLives = Math.max(newState.maxLives, newState.lives);
         newState.manPosition = INITIAL_MAN_POSITION;
         newState.targetManPosition = INITIAL_MAN_POSITION;
+
+        // Trigger Boss Fight
+        newState = initiateBossFight(newState);
     }
 
     // Check for game over
